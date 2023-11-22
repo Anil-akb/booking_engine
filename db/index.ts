@@ -11,7 +11,7 @@ const connectDB = async () => {
         }
 
         const connectionInstance = await mongoose.connect(mongoURI, {
-            dbName: DB_NAME, // Specify the database name if it's not included in the URI
+            dbName: DB_NAME, 
         });
 
         console.log(`⚙️ MongoDB connected !! DB HOST: ${connectionInstance.connection.host}`);

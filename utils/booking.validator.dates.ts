@@ -1,8 +1,11 @@
+
+//preventing users from selecting past dates or duplicating bookings.
+
 export const validateBookingDates = (array: string[]): boolean => {
-  if (array.length === 0) return false; // Array should not be empty
+  if (array.length === 0) return false; 
 
   const currentDate = new Date();
-  const uniqueDates = new Set<string>(); // Using a Set to track unique dates
+  const uniqueDates = new Set<string>();
 
   // Check if each element is a valid date and in the future, and there are no duplicates
   for (const date of array) {
@@ -26,7 +29,6 @@ interface BookingDatesResult {
 }
 
 export const bookingDatesBeforeCurrentDate = (dateArray: string[]): BookingDatesResult => {
-  // Convert dates to Date objects
   const currentDate = new Date();
 
   // Check if any date is in the past

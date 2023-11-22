@@ -1,58 +1,98 @@
-import  { Model, Schema, model } from "mongoose";
+import { Model, Schema, model } from "mongoose";
 import { validateBookingDates } from "../utils/booking.validator.dates";
-
 import { BookingsType } from "../types";
 
-type BookingsModelType = Model<BookingsType>;
+interface IBooking extends BookingsType, Document {}
+
+type BookingsModelType = Model<IBooking>;
 
 const bookingSchema = new Schema<BookingsType>({
-    room_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'Rooms',
-        required: [true, 'Room id is required field']
+  room: {
+    type: Schema.Types.ObjectId,
+    required: [true, "Room id is required field"],
+  },
+  user: {
+    type: Schema.Types.ObjectId,
+    required: [true, "User id is required field"],
+  },
+  hotel: {
+    type: Schema.Types.ObjectId,
+    required: [true, "property id is required "],
+  },
+  userName: {
+    type: String,
+    required: [true, "Name is required"],
+  },
+  amount: {
+    type: Number,
+    required: [true, "Amount is required"],
+  },
+  booking_dates: {
+    type: [Date],
+    required: [true, "Booking `booking_dates` is required field"],
+    validate: [
+      validateBookingDates,
+      "Please provide valid future dates for `booking_dates`",
+    ],
+  },
+  payment: {
+    type: Schema.Types.ObjectId,
+  },
+  status: {
+    type: String,
+    default: "pending",
+    enum: [
+      "pending",
+      "cancel",
+      "approved",
+      "rejected",
+      "in-reviews",
+      "completed",
+    ],
+    required: [true, "Room status is required field."],
+  },
+  checkInDate: {
+    type: Date,
+    required: true,
+    validate: {
+      validator: function (value: { toISOString: () => string }) {
+        //  date format (YYYY-MM-DD)
+        return /^\d{4}-\d{2}-\d{2}$/.test(value.toISOString().split("T")[0]);
+      },
+      message: "Invalid date format for check-in date",
     },
-     customer_id: {
-        type: Schema.Types.ObjectId,
-        ref: 'Users',
-        required: [true, 'User id is required field']
+  },
+  checkOutDate: {
+    type: Date,
+    required: true,
+    validate: {
+      validator: function (value: { toISOString: () => string }) {
+        // date format (YYYY-MM-DD)
+        return /^\d{4}-\d{2}-\d{2}$/.test(value.toISOString().split("T")[0]);
+      },
+      message: "Invalid date format for check-out date",
     },
-    booking_dates: {
-        type: [Date],
-        required: [true, 'Booking `booking_dates` is required field'],
-        validate: [validateBookingDates, 'Please provide valid future dates for `booking_dates`']
-    },      
-    
-    property_id :{
-        type: Schema.Types.ObjectId,
-        required: [true, 'property id is required ']
-    },
-    payment_id: {
-        type: Schema.Types.ObjectId,
-    },
-    status: {
-        type: String,
-        default: 'pending',
-        enum: ['pending', 'cancel', 'approved', 'rejected', 'in-reviews', 'completed'],
-        required: [true, 'Room status is required field.']
-    },
-   
-  
-    createdAt: {
-        type: Date,
-        default: Date.now
-    },
-    updatedAt: {
-        type: Date,
-        default: Date.now
-    }
+  },
+
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
 // updatedAt' field before saving or updating a document
-bookingSchema.pre('save', function (next) {
+bookingSchema.pre("save", function (next) {
   this.updatedAt = new Date();
   next();
 });
 
-const Bookings = model<BookingsType, BookingsModelType>("Bookings", bookingSchema);
+const Bookings = model<BookingsType, BookingsModelType>(
+  "Bookings",
+  bookingSchema
+);
 
-export default Bookings; 
+export default Bookings;
